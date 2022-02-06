@@ -3,9 +3,11 @@
 }
 .modal-container {
   position: absolute;
-  width: 50%;
+  width: 20%;
   background: #ffffff;
-  left: 25%;
+  left: 40%;
   top: 30%;
   padding: 20px;
+  border-radius: 1em;
+  height: 50%;
 }
