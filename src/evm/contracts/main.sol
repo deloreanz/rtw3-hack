@@ -4,7 +4,7 @@ pragma solidity ^0.8.3;
 
 import "./chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import { GameNFT } from './game.sol';
+import { GameNFT } from './GameNft.sol';
 
 contract NftBet is ChainlinkClient {
   using Chainlink for Chainlink.Request;
@@ -29,7 +29,7 @@ contract NftBet is ChainlinkClient {
     address oracle;
     bytes32 jobId;
     string url;
-    // @todo more game criteria?
+    bytes32 results;
     mapping(address => uint) userBalance;
   }
 
@@ -45,17 +45,21 @@ contract NftBet is ChainlinkClient {
   }
 
   function createGame
-    (
+  (
       string gameName,
       string gameSymbol,
       address requiredCollection,
       string calldata url,
       string tokenAddress,
       address oracle,
-      string jobid
-
-    )
+      string jobid,
+      ISuperfluid host,
+      IConstantFlowAgreementV1 cfa,
+      ISuperToken acceptedToken
+  )
     public returns (bool) {
+
+    // converting token to SuperToken?
 
     Game memory game;
 
@@ -68,13 +72,8 @@ contract NftBet is ChainlinkClient {
 
     gameArray.push(game);
 
-    // TO-DO:
-    // ISuperfluid host,
-    // IConstantFlowAgreementV1 cfa,
-    // ISuperToken acceptedToken
-
     // mint NFT and set user as owner
-    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol, host, cfa, tokenAddress);
+    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol, host, cfa, acceptedToken);
     emit GameCreated(msg.sender);
 
   }
@@ -83,44 +82,38 @@ contract NftBet is ChainlinkClient {
   (
     uint tokenId,
     string matchId
-    ) public returns (bool){
-      address oracle;
-      bytes32 jobId;
-      // lookup game to get _oracle and _jobId
-      // (get oracle and jobid from the game object)
+  ) public returns (bool) {
 
-      // call chainlink to see if result is available
-      requestData(oracle, jobId, matchId);
+    oracle = games[tokenId].oracle;
+    jobId = games[tokenId].jobId;
 
-      // NOTE: result is returned later when chainklink calls "fulfill"
-    }
+    // call chainlink to see if result is available
+    requestData(tokenId, oracle, jobId, matchId);
+    // NOTE: result is returned later when chainklink calls "fulfill"
+  }
 
-    function requestData
-    (
-      address _oracle,
-      bytes32 _jobId,
-      string memory _matchId
-    )
-      public
-      onlyOwner
-    {
-      Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
-      req.add("matchId", "_matchid");
-      sendChainlinkRequestTo(_oracle, req, oraclePayment);
-    }
+  function requestData
+  (
+    uint tokenId,
+    address _oracle,
+    bytes32 _jobId,
+    string memory _matchId
+  )
+    public
+    onlyOwner
+  {
+    Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
+    req.add("matchId", "_matchid");
+    sendChainlinkRequestTo(_oracle, req, oraclePayment);
+  }
 
-    bytes32 public gameResults; // TO-DO: remove this will need to mutate the appropriate game instead
-
-    function fulfill(bytes32 _requestId, bytes32 _data)
-      public
-      recordChainlinkFulfillment(_requestId)
-    {
-      gameResults = _data;
-
-      // handle result returned from chainlink
-
-      // distribute funds
-    }
+  function fulfill(bytes32 _requestId, bytes32 _data)
+    public
+    recordChainlinkFulfillment(_requestId)
+  {
+    games[tokenId].results = _data;
+    // TO-DO: distribute funds
+  }
 
   function setBetStream(uint tokenId, uint streamRate, bool gameResult) public returns (bool) {
     // @todo how to set which game to stream to?
@@ -128,7 +121,6 @@ contract NftBet is ChainlinkClient {
 
     // if stream rate is different, set new stream rate
   }
-
 
   // @todo probably some view or pure methods as utility
 
