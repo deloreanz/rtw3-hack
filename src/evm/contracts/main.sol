@@ -3,7 +3,6 @@
 pragma solidity ^0.8.3;
 
 import "./chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 contract NftBet is ChainlinkClient {
@@ -71,13 +70,13 @@ contract NftBet is ChainlinkClient {
     (
       address _oracle,
       bytes32 _jobId,
-      string memory _matchId
+      string memory matchId
     )
       public
       onlyOwner
     {
       Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
-      req.add("matchId", "_matchId");
+      req.add("matchId", "5527455bb80a5e9884153786aeb5f2b2");
       sendChainlinkRequestTo(_oracle, req, oraclePayment);
     }
 
