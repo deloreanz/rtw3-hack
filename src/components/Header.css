@@ -15,13 +15,21 @@
 }
 
 header {
-    height: 4em;
+    height: 20em;
     display: flex;
     align-items: center;
-    background: #6441a5;
-    /* fallback for old browsers */
-    background: -webkit-linear-gradient( to right, #2a0845, #6441a5);
-    /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient( to right, #2a0845, #6441a5);
-    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #1c2634;
+
+}
+
+.logo-container{
+    position: absolute;
+    width: 5em;
+    top: 1em;
+    left:1em;
+}
+
+.logo{
+    width:100%;
+    height:auto;
 }

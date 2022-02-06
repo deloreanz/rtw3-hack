@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Button from '@mui/material/Button';
 import Modal from './Modal';
 import './Modal.css';
+import './Game.css';
 import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
@@ -51,8 +52,8 @@ class Game extends Component {
 
   render() {
     return (
-      <div>
-        <Button variant="contained" onClick={e => this.modalOpen(e)}>Start New Game</Button>
+      <div className="body">
+        <Button variant="outlined" onClick={e => this.modalOpen(e)}>Start New Game</Button>
         
         {this.state.modal && <Modal handleClose={(e) => this.modalClose(e)}>
           <h2>New Game</h2>
