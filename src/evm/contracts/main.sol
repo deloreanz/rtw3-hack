@@ -33,6 +33,7 @@ contract NftBet is ChainlinkClient {
   struct Game {
     string name;
     string symbol;
+    address gameAddress;
     address creator;
     string networkId;
     address collectionAddress;
@@ -83,6 +84,9 @@ contract NftBet is ChainlinkClient {
 
     Game memory game;
 
+    // mint NFT and set user as owner
+    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol);
+
     // TO-DO: value checks
     game.creator = msg.sender;
     game.name = gameName;
@@ -92,12 +96,11 @@ contract NftBet is ChainlinkClient {
     game.date = date;
     game.floor_price = floor_price;
     game.gameID = ++gameCounter;
-
+    game.gameAddress = nft.getAddress();
     gameArray.push(game);
     games[gameCounter] = game;
 
-    // mint NFT and set user as owner
-    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol);
+
     emit GameCreated(msg.sender);
     return true;
 
