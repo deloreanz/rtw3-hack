@@ -33,7 +33,6 @@ contract NftBet is ChainlinkClient {
     string floor_price; //wei
     uint gameID;
     bytes32 results;
-    mapping(address => uint) userBalance;
   }
 
   event GameCreated(address creator /* @todo more fields here */);
