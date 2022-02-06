@@ -10,7 +10,9 @@ import { useWallet } from './providers/WalletProvider.js';
 
   
 function App() {
-  const { loginProvider, signer, address, account, accounts, connect, isConnected, balances: coinBalances, network, networkType, networkId, getNetwork } = useWallet();
+  const result = useWallet();
+  console.log(result);
+  // const { loginProvider, signer, address, account, accounts, connect, isConnected, balances: coinBalances, network, networkType, networkId, getNetwork } = useWallet();
   
   return (
     <div className="App">
