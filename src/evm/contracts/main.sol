@@ -207,18 +207,18 @@ contract NftBet is ChainlinkClient {
   }
 
   function distribute(uint _data) private {
-    players = []
-    winners = []
-    // gamePool = 
-    winnerPrice = _data.items.0.floor_price_wei_7d
-    for(uint i = 0; i<players.length; i++){
-        if(players[i].floor_price >= winnerPrice){
-            winners.push(players[i])
-        }
-    }
-    for(uint i = 0; i<winners.length; i++){
-        // pay winners proportional to contribution
-    }
+    // players = []
+    // winners = []
+    // // gamePool = 
+    // winnerPrice = _data.items.0.floor_price_wei_7d
+    // for(uint i = 0; i<players.length; i++){
+    //     if(players[i].floor_price >= winnerPrice){
+    //         winners.push(players[i])
+    //     }
+    // }
+    // for(uint i = 0; i<winners.length; i++){
+    //     // pay winners proportional to contribution
+    // }
     // pay nft owner
   }
 

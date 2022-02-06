@@ -5,7 +5,8 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import { useState } from 'react';
 
-const Header = ({ setIsModalOpen }) => {
+const Header = ({ setIsModalOpen, walletDetails }) => {
+  console.log('walletdetails: ', walletDetails);
 
   const data = "This is data from Child Component to the Parent Component."
 
@@ -22,6 +23,11 @@ const Header = ({ setIsModalOpen }) => {
             <Button variant="outlined" onClick={e => setIsModalOpen(true)}>Start New Game</Button>
           </div>
         </Grid>
+        {walletDetails && <Grid item xs={4}> 
+          <div>
+            Address: {walletDetails.address}
+          </div>
+        </Grid>}
       </Grid>
     </header>
   );

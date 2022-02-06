@@ -11,7 +11,7 @@ import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Grid from '@mui/material/Grid';
-
+import betContract from './libs/betContract';
 
 const Input = styled('input')({
   display: 'none',
@@ -30,27 +30,43 @@ const App = () => {
   const [onDate, setOnDate] = useState('');
   const [sign, setSign] = useState('');
   const [priceValue, setPriceValue] = useState('');
+  const [walletDetails, setWalletDetails] = useState({})
+
   const formValues = {
     gameName: gameName,
     networkName: network,
     contractAddress: contractAddress, 
-    onDate: onDate, 
-    sign: sign,
-    priceValue: priceValue
+    onDate: onDate
   }
+
+  
+  
+
+  useEffect(() => {
+    if (!address || !loginProvider || !signer || !account) return;
+    setWalletDetails({
+      loginProvider: loginProvider,
+      signer: signer,
+      address: address, 
+      account: account
+    });
+  }, [address, loginProvider, signer, account]);
+
+  useEffect(() => {
+    if (!loginProvider) return;
+    // const nftBet = betContract({ contractAddress, networkId, loginProvider });
+    // console.log('nftBet', nftBet);
+  }, [loginProvider]);
 
   const handleSubmit = (e) => {
     console.log('handle submit');
     console.log(formValues);
-    // this.setState({ name: this.state.modalInputName });
-    // this.modalClose();
   }
 
-  
 
   return (
     <div className="App">
-      <Header setIsModalOpen={setIsModalOpen} />
+      <Header setIsModalOpen={setIsModalOpen} walletDetails={walletDetails}/>
       <Game />
 
       {isModalOpen && 
