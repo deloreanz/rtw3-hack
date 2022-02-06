@@ -4,6 +4,7 @@ pragma solidity ^0.8.3;
 
 import "./chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import { GameNFT } from './game.sol';
 
 contract NftBet is ChainlinkClient {
   using Chainlink for Chainlink.Request;
@@ -25,8 +26,10 @@ contract NftBet is ChainlinkClient {
   struct Game {
     address creator;
     address tokenAddress;
-    // @todo more game criteria
+    address oracle;
+    bytes32 jobId;
     string url;
+    // @todo more game criteria?
     mapping(address => uint) userBalance;
   }
 
@@ -41,12 +44,38 @@ contract NftBet is ChainlinkClient {
     adminAddress = msg.sender;
   }
 
-  function createGame(address requiredCollection, string calldata url) public returns (bool) {
-    // create game struct
+  function createGame
+    (
+      string gameName,
+      string gameSymbol,
+      address requiredCollection,
+      string calldata url,
+      string tokenAddress,
+      address oracle,
+      string jobid
 
-    // add to gameArray and games map
+    )
+    public returns (bool) {
+
+    Game memory game;
+
+    // TO-DO: value checks
+    game.creator = msg.sender;
+    game.tokenAddress = tokenAddress;
+    game.oracle = oracle;
+    game.jobId = jobid;
+    game.url = url;
+
+    gameArray.push(game);
+
+    // TO-DO:
+    // ISuperfluid host,
+    // IConstantFlowAgreementV1 cfa,
+    // ISuperToken acceptedToken
 
     // mint NFT and set user as owner
+    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol, host, cfa, tokenAddress);
+    emit GameCreated(msg.sender);
 
   }
 
@@ -70,13 +99,13 @@ contract NftBet is ChainlinkClient {
     (
       address _oracle,
       bytes32 _jobId,
-      string memory matchId
+      string memory _matchId
     )
       public
       onlyOwner
     {
       Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
-      req.add("matchId", "5527455bb80a5e9884153786aeb5f2b2");
+      req.add("matchId", "_matchid");
       sendChainlinkRequestTo(_oracle, req, oraclePayment);
     }
 
