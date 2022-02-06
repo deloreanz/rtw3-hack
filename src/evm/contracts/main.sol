@@ -33,6 +33,7 @@ contract NftBet is ChainlinkClient {
   struct Player {
     uint bet;
     bool direction;
+    address addr;
   }
 
   struct Game {
@@ -233,8 +234,14 @@ contract NftBet is ChainlinkClient {
               winners.push(players[i]);
           }
     }
+    i = 0;
     for(uint i = 0; i<winners.length; i++) {
-        // pay winners proportional to contribution
+        uint256 total = gamePool;
+
+        //TO - DO... calculate how much each is owed
+        (bool success, ) = winners[i].address.call.value()("");
+        require(success, "Transfer failed.");
+    }
     }
     // pay nft owner
   }
