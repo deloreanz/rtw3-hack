@@ -15,6 +15,10 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 const Input = styled('input')({
   display: 'none',
 });
+
+const chainlinkProviders = [
+
+];
   
 const App = () => {
   const { loginProvider, signer, address, account, accounts, connect, isConnected, balances: coinBalances, network, networkType, networkId, getNetwork } = useWallet();
@@ -22,6 +26,7 @@ const App = () => {
   const [gameName, setGameName] = useState('');
 
 
+  
 
   return (
     <div className="App">
