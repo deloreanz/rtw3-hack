@@ -189,14 +189,39 @@ contract NftBet is ChainlinkClient {
     emit OracleResultReturned(_requestId, _data);
     // TO-DO: distribute funds
 
+    // Check for game is over... if game date is today
+    // require(nft.date == today, "Game is not over.");
+
+
+    // Otherwise...
+
     // 5% to current owner of the game NFT (gameID)
     // ERC20 transfer
+    distribute(_data);
+  
 
     // give out proportional rewards to users on the winning side
     // 95% of the pool gets split up
     // ERC20 transfers
 
   }
+
+  function distribute(uint _data) private {
+    players = []
+    winners = []
+    // gamePool = 
+    winnerPrice = _data.items.0.floor_price_wei_7d
+    for(uint i = 0; i<players.length; i++){
+        if(players[i].floor_price >= winnerPrice){
+            winners.push(players[i])
+        }
+    }
+    for(uint i = 0; i<winners.length; i++){
+        // pay winners proportional to contribution
+    }
+    // pay nft owner
+  }
+
 
   // @todo probably some view or pure methods as utility
 
