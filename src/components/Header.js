@@ -9,11 +9,6 @@ const Header = ({ setIsModalOpen }) => {
 
   const data = "This is data from Child Component to the Parent Component."
 
-  // const modalOpen = (e) => {
-  //   // this.setState({ modal: true });
-  //   console.log("hello", e);
-  // }
-
   return (
     <header className="header">
       <Grid className="header-container" container spacing={2}>
