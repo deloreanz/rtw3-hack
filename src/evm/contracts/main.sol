@@ -54,8 +54,7 @@ contract NftBet is ChainlinkClient {
   function resolveGame
   (
     uint tokenId,
-    string date,
-    string teamname
+    string matchId
     ) public returns (bool){
       address oracle;
       bytes32 jobId;
@@ -63,7 +62,7 @@ contract NftBet is ChainlinkClient {
       // (get oracle and jobid from the game object)
 
       // call chainlink to see if result is available
-      requestData(oracle, jobId, date, teamname);
+      requestData(oracle, jobId, matchId);
 
       // NOTE: result is returned later when chainklink calls "fulfill"
     }
@@ -72,25 +71,23 @@ contract NftBet is ChainlinkClient {
     (
       address _oracle,
       bytes32 _jobId,
-      string memory _date,
-      string memory _team
+      string memory matchId
     )
       public
       onlyOwner
     {
       Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
-      req.add("date", "_date");
-      req.add("teamName", "_team");
+      req.add("matchId", "5527455bb80a5e9884153786aeb5f2b2");
       sendChainlinkRequestTo(_oracle, req, oraclePayment);
     }
 
-    bytes32 public data;
+    bytes32 public gameResults; // TO-DO: remove this will need to mutate the appropriate game instead
 
     function fulfill(bytes32 _requestId, bytes32 _data)
       public
       recordChainlinkFulfillment(_requestId)
     {
-      data = _data;
+      gameResults = _data;
 
       // handle result returned from chainlink
 
