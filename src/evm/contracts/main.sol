@@ -10,9 +10,10 @@ contract NftBet is ChainlinkClient {
   using Chainlink for Chainlink.Request;
 
   address adminAddress;
-  // games[TOKEN_ID] = GAME
+  // games[gameID] = GAME
   mapping(uint => Game) public games;
   Game[] public gameArray;
+  uint private gameCounter = 0;
 
   // @todo need to decide how to track total contribution to a game by a user streaming
   // considering when they started streaming, or updated their stream rate
@@ -24,11 +25,13 @@ contract NftBet is ChainlinkClient {
   // to update their stream bet
 
   struct Game {
+    string name;
+    string symbol;
     address creator;
-    address tokenAddress;
-    address oracle;
-    bytes32 jobId;
-    string url;
+    address collectionAddress;
+    string date;
+    string floor_price; //wei
+    uint gameID;
     bytes32 results;
     mapping(address => uint) userBalance;
   }
@@ -48,53 +51,51 @@ contract NftBet is ChainlinkClient {
   (
       string gameName,
       string gameSymbol,
-      address requiredCollection,
-      string calldata url,
-      string tokenAddress,
-      address oracle,
-      string jobid,
-      ISuperfluid host,
-      IConstantFlowAgreementV1 cfa,
-      ISuperToken acceptedToken
+      address collectionAddress,
+      string date,
+      string floor_price,
+      uint gameID
+
   )
     public returns (bool) {
-
-    // converting token to SuperToken?
 
     Game memory game;
 
     // TO-DO: value checks
     game.creator = msg.sender;
-    game.tokenAddress = tokenAddress;
-    game.oracle = oracle;
-    game.jobId = jobid;
-    game.url = url;
+    game.name = gameName;
+    game.symbol = gameSymbol;
+    game.collectionAddress = collectionAddress;
+    game.date = date;
+    game.floor_price = floor_price;
+    game.gameID = ++gameCounter;
 
     gameArray.push(game);
+    games[gameCounter] = game;
 
     // mint NFT and set user as owner
-    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol, host, cfa, acceptedToken);
+    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol);
     emit GameCreated(msg.sender);
 
   }
 
   function resolveGame
   (
-    uint tokenId,
+    uint gameID,
     string matchId
   ) public returns (bool) {
 
-    oracle = games[tokenId].oracle;
-    jobId = games[tokenId].jobId;
+    oracle = games[gameID].oracle;
+    jobId = games[gameID].jobId;
 
     // call chainlink to see if result is available
-    requestData(tokenId, oracle, jobId, matchId);
+    requestData(gameID, oracle, jobId, matchId);
     // NOTE: result is returned later when chainklink calls "fulfill"
   }
 
   function requestData
   (
-    uint tokenId,
+    uint gameID,
     address _oracle,
     bytes32 _jobId,
     string memory _matchId
@@ -111,15 +112,8 @@ contract NftBet is ChainlinkClient {
     public
     recordChainlinkFulfillment(_requestId)
   {
-    games[tokenId].results = _data;
+    games[gameID].results = _data;
     // TO-DO: distribute funds
-  }
-
-  function setBetStream(uint tokenId, uint streamRate, bool gameResult) public returns (bool) {
-    // @todo how to set which game to stream to?
-    // if stream rate is 0, stop stream
-
-    // if stream rate is different, set new stream rate
   }
 
   // @todo probably some view or pure methods as utility
