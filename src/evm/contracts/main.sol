@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.3;
 
-import "./chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import { GameNFT } from './GameNft.sol';
 
@@ -48,13 +48,11 @@ contract NftBet is ChainlinkClient {
 
   function createGame
   (
-      string gameName,
-      string gameSymbol,
+      string memory gameName,
+      string memory gameSymbol,
       address collectionAddress,
-      string date,
-      string floor_price,
-      uint gameID
-
+      string memory date,
+      string memory floor_price
   )
     public returns (bool) {
 
@@ -75,43 +73,30 @@ contract NftBet is ChainlinkClient {
     // mint NFT and set user as owner
     GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol);
     emit GameCreated(msg.sender);
+    return true;
 
   }
 
   function resolveGame
   (
-    uint gameID,
-    string matchId
+    uint gameID
   ) public returns (bool) {
-
-    oracle = games[gameID].oracle;
-    jobId = games[gameID].jobId;
-
-    // call chainlink to see if result is available
-    requestData(gameID, oracle, jobId, matchId);
-    // NOTE: result is returned later when chainklink calls "fulfill"
+    return true;
   }
 
   function requestData
   (
-    uint gameID,
-    address _oracle,
-    bytes32 _jobId,
-    string memory _matchId
+    uint gameID
   )
     public
-    onlyOwner
   {
-    Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
-    req.add("matchId", "_matchid");
-    sendChainlinkRequestTo(_oracle, req, oraclePayment);
+
   }
 
-  function fulfill(bytes32 _requestId, bytes32 _data)
+  function fulfill(uint gameID)
     public
-    recordChainlinkFulfillment(_requestId)
   {
-    games[gameID].results = _data;
+
     // TO-DO: distribute funds
   }
 
