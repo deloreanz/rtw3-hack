@@ -5,7 +5,7 @@ import {FlowManagement, ISuperToken, IConstantFlowAgreementV1, ISuperfluid} from
 import {ERC721} from "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
 
-contract Game is ERC721, FlowManagement {
+contract GameNFT is ERC721, FlowManagement {
 
   constructor (
     address owner,
