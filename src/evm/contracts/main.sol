@@ -1,6 +1,6 @@
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.3;
+pragma solidity ^0.8.6;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -34,6 +34,7 @@ contract NftBet is ChainlinkClient {
     string name;
     string symbol;
     address creator;
+    string networkId;
     address collectionAddress;
     string date;
     string floor_price; //wei
@@ -42,7 +43,7 @@ contract NftBet is ChainlinkClient {
   }
 
   event GameCreated(address creator /* @todo more fields here */);
-  event OracleRequestSent(uint requestId);
+  event OracleRequestSent(bytes32 requestId);
   event OracleResultReturned(bytes32 requestId, uint data);
 
   modifier adminOnly {
@@ -63,7 +64,7 @@ contract NftBet is ChainlinkClient {
     // setPublicChainlinkToken();
     setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
     // https://docs.polygon.technology/docs/develop/oracles/chainlink/
-    oracle = 0x58bbdbfb6fca3129b91f0dbe372098123b38b5e9;
+    oracle = 0x58BBDbfb6fca3129b91f0DBE372098123B38B5e9;
     jobId = "a82495a8fd5b4cb492b17dc0cc31a4fe"; // HTTP GET, returns bytes32
     // @note fee varies by network and job
     fee = 10 ** 16; // 0.01 LINK
@@ -73,6 +74,7 @@ contract NftBet is ChainlinkClient {
   (
       string memory gameName,
       string memory gameSymbol,
+      string memory networkId,
       address collectionAddress,
       string memory date,
       string memory floor_price
@@ -85,6 +87,7 @@ contract NftBet is ChainlinkClient {
     game.creator = msg.sender;
     game.name = gameName;
     game.symbol = gameSymbol;
+    game.networkId = networkId;
     game.collectionAddress = collectionAddress;
     game.date = date;
     game.floor_price = floor_price;
@@ -110,7 +113,7 @@ contract NftBet is ChainlinkClient {
   // https://api.covalenthq.com/v1/137/nft_market/collection/0xdc0479cc5bba033b3e7de9f178607150b3abce1f/?quote-currency=USD&format=JSON&from=2022-02-04&to=2022-02-04&key=ckey_200682d8e34b495f9557869dacd
   function requestData
   (
-    string apiKey,
+    string calldata apiKey,
     uint gameID
   )
     public
@@ -119,11 +122,11 @@ contract NftBet is ChainlinkClient {
   {
     // @todo ensure game exists
     // get game details
-    string networkId = games[gameID].networkId;
+    string memory networkId = games[gameID].networkId;
     address nftCollectionAddress = games[gameID].collectionAddress;
-    string date = games[gameID].date; // YYYY-MM-DD
+    string memory date = games[gameID].date; // YYYY-MM-DD
     // construct the covalent API URL
-    string url = string(abi.encodePacked(
+    string memory url = string(abi.encodePacked(
       "https://api.covalenthq.com/v1/", networkId,
       "/nft_market/collection/", nftCollectionAddress,
       "/?quote-currency=USD&format=JSON&from=", date, "&to=", date,
@@ -170,7 +173,7 @@ contract NftBet is ChainlinkClient {
     // request.addInt("times", timesAmount);
     
     // Sends the request
-    uint _requestId = sendChainlinkRequestTo(oracle, request, fee);
+    bytes32 _requestId = sendChainlinkRequestTo(oracle, request, fee);
 
     emit OracleRequestSent(_requestId);
 

@@ -1,0 +1,34 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ReceiveFallbackEmitter",
+  "sourceName": "contracts/chainlink/v0.8/tests/ReceiveFallbackEmitter.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newBalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "FundsReceived",
+      "type": "event"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b5060af8061001e6000396000f3fe60806040527f063d07ee72a7483b8e07ca09054bb686775c5c030f945dde3823a5257a0a93eb34476040516033929190604a565b60405180910390a1005b604481606f565b82525050565b6000604082019050605d6000830185603d565b60686020830184603d565b9392505050565b600081905091905056fea2646970667358221220bf17e946f79483bd744b9785aad2cf2c168691a34ab674f0e5a15cc91b0c1cec64736f6c63430008060033",
+  "deployedBytecode": "0x60806040527f063d07ee72a7483b8e07ca09054bb686775c5c030f945dde3823a5257a0a93eb34476040516033929190604a565b60405180910390a1005b604481606f565b82525050565b6000604082019050605d6000830185603d565b60686020830184603d565b9392505050565b600081905091905056fea2646970667358221220bf17e946f79483bd744b9785aad2cf2c168691a34ab674f0e5a15cc91b0c1cec64736f6c63430008060033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

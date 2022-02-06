@@ -1,0 +1,34 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ReceiveEmitter",
+  "sourceName": "contracts/chainlink/v0.8/tests/ReceiveEmitter.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newBalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "FundsReceived",
+      "type": "event"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5060b88061001f6000396000f3fe6080604052366041577f063d07ee72a7483b8e07ca09054bb686775c5c030f945dde3823a5257a0a93eb344760405160379291906053565b60405180910390a1005b600080fd5b604d816078565b82525050565b6000604082019050606660008301856046565b607160208301846046565b9392505050565b600081905091905056fea26469706673582212206c1d41077e50a3eec2f0cada64b200cd35e4a9216652adee494b0725dcb37e1864736f6c63430008060033",
+  "deployedBytecode": "0x6080604052366041577f063d07ee72a7483b8e07ca09054bb686775c5c030f945dde3823a5257a0a93eb344760405160379291906053565b60405180910390a1005b600080fd5b604d816078565b82525050565b6000604082019050606660008301856046565b607160208301846046565b9392505050565b600081905091905056fea26469706673582212206c1d41077e50a3eec2f0cada64b200cd35e4a9216652adee494b0725dcb37e1864736f6c63430008060033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

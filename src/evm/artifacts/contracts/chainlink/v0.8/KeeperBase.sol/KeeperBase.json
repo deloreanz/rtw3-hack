@@ -1,0 +1,16 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "KeeperBase",
+  "sourceName": "contracts/chainlink/v0.8/KeeperBase.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "OnlySimulatedBackend",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212205472d803ba74c9f22fd95744c41294997345d489db5e6fdf14bfae448e0cb72064736f6c63430008060033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212205472d803ba74c9f22fd95744c41294997345d489db5e6fdf14bfae448e0cb72064736f6c63430008060033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
