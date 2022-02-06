@@ -30,6 +30,12 @@ contract NftBet is ChainlinkClient {
   // while knowing the game/token id since they must call setBetStream with this value
   // to update their stream bet
 
+  struct Player {
+    uint bet;
+    bool direction;
+    address addr;
+  }
+
   struct Game {
     string name;
     string symbol;
@@ -41,6 +47,8 @@ contract NftBet is ChainlinkClient {
     string floor_price; //wei
     uint gameID;
     bytes32 results;
+    bool direction; // lesser or greater
+    mapping(address => Player[]) players;
   }
 
   event GameCreated(address creator /* @todo more fields here */);
@@ -78,7 +86,8 @@ contract NftBet is ChainlinkClient {
       string memory networkId,
       address collectionAddress,
       string memory date,
-      string memory floor_price
+      string memory floor_price,
+      bool memory direction
   )
     public returns (bool) {
 
@@ -95,7 +104,8 @@ contract NftBet is ChainlinkClient {
     game.collectionAddress = collectionAddress;
     game.date = date;
     game.floor_price = floor_price;
-    game.gameID = ++gameCounter;
+    game.direction = direction;
+    game.gameID = gameCounter++;
     game.gameAddress = nft.getAddress();
     gameArray.push(game);
     games[gameCounter] = game;
@@ -206,22 +216,35 @@ contract NftBet is ChainlinkClient {
 
   }
 
-  function distribute(uint _data) private {
-    // players = []
-    // winners = []
-    // // gamePool = 
-    // winnerPrice = _data.items.0.floor_price_wei_7d
-    // for(uint i = 0; i<players.length; i++){
-    //     if(players[i].floor_price >= winnerPrice){
-    //         winners.push(players[i])
-    //     }
-    // }
-    // for(uint i = 0; i<winners.length; i++){
-    //     // pay winners proportional to contribution
-    // }
-    // pay nft owner
+  function sumPlayerBets(Player[] memory players) private pure returns(uint) {
+    uint sum = 0;
+    for(uint i = 0; i<players.length; i++){
+          sum+=players[i].bet;
+    }
   }
 
+  function distribute(uint _data, uint gameID) private {
+    uint[] memory players = games[gameID].players;
+    uint gamePool = sumPlayerBets(players);
+    uint winnerPrice = _data.items[0].floor_price_wei_7d;
+    address[] memory winners = [];
+    Game memory game = games[gameID];
+    for(uint i = 0; i< players.length; i++){
+          if(players[i].direction == game.direction){
+              winners.push(players[i]);
+          }
+    }
+    i = 0;
+    for(uint i = 0; i<winners.length; i++) {
+        uint256 total = gamePool;
+
+        //TO - DO... calculate how much each is owed
+        (bool success, ) = winners[i].address.call.value()("");
+        require(success, "Transfer failed.");
+    }
+    }
+    // pay nft owner
+  }
 
   // @todo probably some view or pure methods as utility
 
