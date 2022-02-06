@@ -71,13 +71,13 @@ contract NftBet is ChainlinkClient {
     (
       address _oracle,
       bytes32 _jobId,
-      string memory matchId
+      string memory _matchId
     )
       public
       onlyOwner
     {
       Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
-      req.add("matchId", "5527455bb80a5e9884153786aeb5f2b2");
+      req.add("matchId", "_matchId");
       sendChainlinkRequestTo(_oracle, req, oraclePayment);
     }
 
