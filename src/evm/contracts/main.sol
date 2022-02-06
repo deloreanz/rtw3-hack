@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.3;
 
-import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import "./chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 contract NftBet is ChainlinkClient {
   using Chainlink for Chainlink.Request;
-  
+
   address adminAddress;
   // games[TOKEN_ID] = GAME
   mapping(uint => Game) public games;
@@ -51,21 +51,51 @@ contract NftBet is ChainlinkClient {
 
   }
 
-  function resolveGame(uint tokenId) public returns (bool) {
-    // lookup game
+  function resolveGame
+  (
+    uint tokenId,
+    string date,
+    string teamname
+    ) public returns (bool){
+      address oracle;
+      bytes32 jobId;
+      // lookup game to get _oracle and _jobId
+      // (get oracle and jobid from the game object)
 
-    // call chainlink to see if result is available
-    
+      // call chainlink to see if result is available
+      requestData(oracle, jobId, date, teamname);
 
-    // NOTE: result is returned later when chainklink calls "fulfill"
-  }
+      // NOTE: result is returned later when chainklink calls "fulfill"
+    }
 
-  function fulfill(bytes32 requestId, uint256 result) public recordChainlinkFulfillment(requestId) {
-    // handle result returned from chainlink
+    function requestData
+    (
+      address _oracle,
+      bytes32 _jobId,
+      string memory _date,
+      string memory _team
+    )
+      public
+      onlyOwner
+    {
+      Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
+      req.add("date", "_date");
+      req.add("teamName", "_team");
+      sendChainlinkRequestTo(_oracle, req, oraclePayment);
+    }
 
-    // distribute funds
+    bytes32 public data;
 
-  }
+    function fulfill(bytes32 _requestId, bytes32 _data)
+      public
+      recordChainlinkFulfillment(_requestId)
+    {
+      data = _data;
+
+      // handle result returned from chainlink
+
+      // distribute funds
+    }
 
   function setBetStream(uint tokenId, uint streamRate, bool gameResult) public returns (bool) {
     // @todo how to set which game to stream to?
