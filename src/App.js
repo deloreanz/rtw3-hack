@@ -16,6 +16,10 @@ import Grid from '@mui/material/Grid';
 const Input = styled('input')({
   display: 'none',
 });
+
+const chainlinkProviders = [
+
+];
   
 const App = () => {
   const { loginProvider, signer, address, account, accounts, connect, isConnected, balances: coinBalances, network, networkType, networkId, getNetwork } = useWallet();
