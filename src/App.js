@@ -18,42 +18,36 @@ const Input = styled('input')({
   
 const App = () => {
   const { loginProvider, signer, address, account, accounts, connect, isConnected, balances: coinBalances, network, networkType, networkId, getNetwork } = useWallet();
-  const [modalOpen, setModalOpen] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [gameName, setGameName] = useState('');
 
-  const state = {
-    modal: false,
-    name: "",
-    modalInputName: ""
-  };
-  
-  const openModal = (isModalOpen) => {
-    console.log('ismodalOpen', isModalOpen);
-    setModalOpen(isModalOpen);
-    state.modal = modalOpen
-    console.log('modalOpen: ', modalOpen);
-  }
 
-  const modalClose = (isModalOpen) => {
-    console.log('ismodalOpen', isModalOpen);
-    setModalOpen(isModalOpen);
-    state.modal = modalOpen
-  }
 
   return (
     <div className="App">
-      <Header openModal={openModal} />
+      <Header setIsModalOpen={setIsModalOpen} />
       <Game />
-      {modalOpen && <Modal handleClose={(e) => modalClose(false)}>
-          <h2>New Game</h2>
+
+      {isModalOpen && 
+        <Modal
+          handleClose={e => {
+            setIsModalOpen(false);
+            setGameName('');
+          }}
+        >
+          <h2>Create New Game</h2>
           <div className="form-group">
             <div>
               <label>Name:</label>
               <input
                 type="text"
-                value={state.modalInputName}
                 name="modalInputName"
-                onChange={(e) => this.handleChange(e)}
                 className="form-control"
+                value={gameName}
+                onChange={e => {
+                  console.log('setting gameName = ' + e.target.value);
+                  setGameName(e.target.value);
+                }}
               />
             </div>
             <div>
@@ -86,7 +80,9 @@ const App = () => {
               </IconButton>
             </label>
           </div>
-        </Modal>}
+        </Modal>
+      }
+
     </div>
   );
 }

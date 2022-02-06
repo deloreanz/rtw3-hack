@@ -5,12 +5,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import { useState } from 'react';
 
-const Header = ({openModal}) => {
-  const state = {
-    modal: false,
-    name: "",
-    modalInputName: ""
-  };
+const Header = ({ setIsModalOpen }) => {
 
   const data = "This is data from Child Component to the Parent Component."
 
@@ -29,7 +24,7 @@ const Header = ({openModal}) => {
         </Grid>
         <Grid item xs={4}>
           <div>
-            <Button variant="outlined" onClick={e => openModal(true)}>Start New Game</Button>
+            <Button variant="outlined" onClick={e => setIsModalOpen(true)}>Start New Game</Button>
           </div>
         </Grid>
       </Grid>
