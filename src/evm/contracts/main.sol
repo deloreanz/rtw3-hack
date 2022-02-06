@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.3;
 
-import "./chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import { GameNFT } from './GameNft.sol';
 
@@ -16,9 +16,10 @@ contract NftBet is ChainlinkClient {
   uint256 private fee;
 
   address adminAddress;
-  // games[TOKEN_ID] = GAME
+  // games[gameID] = GAME
   mapping(uint => Game) public games;
   Game[] public gameArray;
+  uint private gameCounter = 0;
 
   // @todo need to decide how to track total contribution to a game by a user streaming
   // considering when they started streaming, or updated their stream rate
@@ -30,16 +31,19 @@ contract NftBet is ChainlinkClient {
   // to update their stream bet
 
   struct Game {
+    string name;
+    string symbol;
     address creator;
-    address tokenAddress;
-    address oracle;
-    bytes32 jobId;
-    string url;
+    address collectionAddress;
+    string date;
+    string floor_price; //wei
+    uint gameID;
     bytes32 results;
-    mapping(address => uint) userBalance;
   }
 
   event GameCreated(address creator /* @todo more fields here */);
+  event OracleRequestSent(uint requestId);
+  event OracleResultReturned(bytes32 requestId, uint data);
 
   modifier adminOnly {
     require(msg.sender == adminAddress);
@@ -67,65 +71,57 @@ contract NftBet is ChainlinkClient {
 
   function createGame
   (
-      string gameName,
-      string gameSymbol,
-      address requiredCollection,
-      string calldata url,
-      string tokenAddress,
-      address oracle,
-      string jobid,
-      ISuperfluid host,
-      IConstantFlowAgreementV1 cfa,
-      ISuperToken acceptedToken
+      string memory gameName,
+      string memory gameSymbol,
+      address collectionAddress,
+      string memory date,
+      string memory floor_price
   )
     public returns (bool) {
-
-    // converting token to SuperToken?
 
     Game memory game;
 
     // TO-DO: value checks
     game.creator = msg.sender;
-    game.tokenAddress = tokenAddress;
-    game.oracle = oracle;
-    game.jobId = jobid;
-    game.url = url;
+    game.name = gameName;
+    game.symbol = gameSymbol;
+    game.collectionAddress = collectionAddress;
+    game.date = date;
+    game.floor_price = floor_price;
+    game.gameID = ++gameCounter;
 
     gameArray.push(game);
+    games[gameCounter] = game;
 
     // mint NFT and set user as owner
-    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol, host, cfa, acceptedToken);
+    GameNFT nft = new GameNFT(msg.sender, gameName, gameSymbol);
     emit GameCreated(msg.sender);
+    return true;
 
   }
 
   function resolveGame
   (
-    uint tokenId,
-    string matchId
+    uint gameID
   ) public returns (bool) {
-
-    oracle = games[tokenId].oracle;
-    jobId = games[tokenId].jobId;
-
-    // call chainlink to see if result is available
-    requestData(tokenId, oracle, jobId, matchId);
-    // NOTE: result is returned later when chainklink calls "fulfill"
+    return true;
   }
 
   // https://api.covalenthq.com/v1/137/nft_market/collection/0xdc0479cc5bba033b3e7de9f178607150b3abce1f/?quote-currency=USD&format=JSON&from=2022-02-04&to=2022-02-04&key=ckey_200682d8e34b495f9557869dacd
   function requestData
   (
     string apiKey,
-    string networkId,
-    address nftCollectionAddress,
-    string date, // YYYY-MM-DD
-    string memory _matchId
+    uint gameID
   )
     public
-    onlyOwner
+    // onlyOwner
     returns (bytes32 requestId)
   {
+    // @todo ensure game exists
+    // get game details
+    string networkId = games[gameID].networkId;
+    address nftCollectionAddress = games[gameID].collectionAddress;
+    string date = games[gameID].date; // YYYY-MM-DD
     // construct the covalent API URL
     string url = string(abi.encodePacked(
       "https://api.covalenthq.com/v1/", networkId,
@@ -174,22 +170,26 @@ contract NftBet is ChainlinkClient {
     // request.addInt("times", timesAmount);
     
     // Sends the request
-    return sendChainlinkRequestTo(oracle, request, fee);
+    uint _requestId = sendChainlinkRequestTo(oracle, request, fee);
+
+    emit OracleRequestSent(_requestId);
+
+    return _requestId;
   }
 
-  function fulfill(bytes32 _requestId, bytes32 _data)
-    public
-    recordChainlinkFulfillment(_requestId)
+  function fulfill(bytes32 _requestId, uint _data)
+    public recordChainlinkFulfillment(_requestId)
   {
-    games[tokenId].results = _data;
+    emit OracleResultReturned(_requestId, _data);
     // TO-DO: distribute funds
-  }
 
-  function setBetStream(uint tokenId, uint streamRate, bool gameResult) public returns (bool) {
-    // @todo how to set which game to stream to?
-    // if stream rate is 0, stop stream
+    // 5% to current owner of the game NFT (gameID)
+    // ERC20 transfer
 
-    // if stream rate is different, set new stream rate
+    // give out proportional rewards to users on the winning side
+    // 95% of the pool gets split up
+    // ERC20 transfers
+
   }
 
   // @todo probably some view or pure methods as utility
