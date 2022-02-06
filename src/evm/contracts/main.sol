@@ -4,7 +4,7 @@ pragma solidity ^0.8.6;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import { GameNFT } from './GameNft.sol';
+import { GameNFT } from './GameNFT.sol';
 
 contract NftBet is ChainlinkClient {
   using Chainlink for Chainlink.Request;
@@ -45,7 +45,7 @@ contract NftBet is ChainlinkClient {
 
   event GameCreated(address creator /* @todo more fields here */);
   event OracleRequestSent(bytes32 requestId);
-  event OracleResultReturned(bytes32 requestId, uint data);
+  event OracleResultReturned(bytes32 requestId, uint256 data);
 
   modifier adminOnly {
     require(msg.sender == adminAddress);
@@ -65,8 +65,11 @@ contract NftBet is ChainlinkClient {
     // setPublicChainlinkToken();
     setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
     // https://docs.polygon.technology/docs/develop/oracles/chainlink/
-    oracle = 0x58BBDbfb6fca3129b91f0DBE372098123B38B5e9;
-    jobId = "a82495a8fd5b4cb492b17dc0cc31a4fe"; // HTTP GET, returns bytes32
+    // oracle = 0x58BBDbfb6fca3129b91f0DBE372098123B38B5e9; // orig
+    oracle = 0xc8D925525CA8759812d0c299B90247917d4d4b7C;
+    // jobId = "a82495a8fd5b4cb492b17dc0cc31a4fe"; // HTTP GET, returns bytes32
+    // jobId = "da20aae0e4c843f6949e5cb3f7cfe8c4"; // HTTP GET, returns uint256, orig
+    jobId = "bbf0badad29d49dc887504bacfbb905b";
     // @note fee varies by network and job
     fee = 10 ** 16; // 0.01 LINK
   }
@@ -183,7 +186,7 @@ contract NftBet is ChainlinkClient {
     return _requestId;
   }
 
-  function fulfill(bytes32 _requestId, uint _data)
+  function fulfill(bytes32 _requestId, uint256 _data)
     public recordChainlinkFulfillment(_requestId)
   {
     emit OracleResultReturned(_requestId, _data);
