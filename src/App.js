@@ -185,10 +185,10 @@ const App = () => {
                   }}
                 />
             </Grid>
-            <Grid xs={3} item>
-              <label>Floor Price: </label>
+            <Grid xs={1} item>
+              <label>Is Greater than:</label>
             </Grid>
-            <Grid xs={2} item>
+            <Grid xs={11} item>
                 <select name='display_address' onChange={e => {
                     console.log('setting sign = ' + e.target.value);
                     setSign(e.target.value);
@@ -198,10 +198,10 @@ const App = () => {
                     <option value={false}>false</option>                    
                 </select>
             </Grid>
-            <Grid xs={3} item>
-              <label>Is Greater than: </label>
+            <Grid xs={1} item>
+              <label>Floor Price</label>
             </Grid>
-            <Grid xs={2} item>
+            <Grid xs={11} item>
                 <input
                   type="text"
                   name="modalInputName"
