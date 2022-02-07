@@ -25,22 +25,24 @@ const App = () => {
   const { loginProvider, signer, address, account, accounts, connect, isConnected, balances: coinBalances, network, networkType, networkId, getNetwork } = useWallet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [gameName, setGameName] = useState('');
-  const [networkName, setNetworkName] = useState('');
-  const [contractAddress, setContractAddress] = useState('');
+  const [inputNetworkId, setInputNetworkId] = useState('');
+  const [collectionAddress, setCollectionAddress] = useState('');
   const [onDate, setOnDate] = useState('');
   const [sign, setSign] = useState('');
+  const [gameSymbol, setGameSymbol] = useState('');
   const [priceValue, setPriceValue] = useState('');
   const [walletDetails, setWalletDetails] = useState({})
+  const [nftBet, setNftBet] = useState(null);
 
   const formValues = {
     gameName: gameName,
-    networkName: network,
-    contractAddress: contractAddress, 
-    onDate: onDate
+    gameSymbol: gameSymbol,
+    networkId: inputNetworkId,
+    collectionAddress: collectionAddress, 
+    onDate: onDate,
+    sign: sign,
+    priceValue: priceValue
   }
-
-  
-  
 
   useEffect(() => {
     if (!address || !loginProvider || !signer || !account) return;
@@ -53,15 +55,37 @@ const App = () => {
   }, [address, loginProvider, signer, account]);
 
   useEffect(() => {
-    if (!loginProvider) return;
-    // const nftBet = betContract({ contractAddress, networkId, loginProvider });
-    // console.log('nftBet', nftBet);
-  }, [loginProvider]);
+    if (!loginProvider || !signer) return;
+    const bettingContractAddress = "0xfc66f1872958cb671c9D39B57879DA4181EaC94F"
+    const contract = betContract({ contractAddress: bettingContractAddress, networkId, loginProvider: signer });
+    setNftBet(contract);
+  }, [loginProvider, signer]);
 
   const handleSubmit = (e) => {
-    console.log('handle submit');
-    console.log(formValues);
+    console.log('formvalues: ', formValues);
+    // if (formValues.contractAddress && 
+    //   formValues.gameName && 
+    //   formValues.networkName && 
+    //   formValues.onDate) {
+      var isTrueSet = (sign === 'true');
+      const isCreated = nftBet.createGame(formValues.gameName, formValues.gameSymbol, formValues.networkId, formValues.collectionAddress, formValues.onDate, formValues.priceValue, isTrueSet);
+      isCreated.then((val) => {
+          console.log('val: ', val);
+        }, err => {
+          console.log('err: ', err);
+        });
+      
+      // pollForGames();
   }
+
+  const pollForGames = () => {
+    const gamesMap = nftBet.gameArray("0");
+    gamesMap.then((game) => {
+      console.log('game: ', game);
+    })
+    console.log('gamesMap: ', gamesMap);
+  }
+  
 
 
   return (
@@ -74,11 +98,12 @@ const App = () => {
           handleClose={e => {
             setIsModalOpen(false);
             setGameName('');
-            setNetworkName('');
-            setContractAddress('');
+            setInputNetworkId('');
+            setCollectionAddress('');
             setOnDate('');
             setSign('');
             setPriceValue('');
+            setGameSymbol('');
           }}
         >
           <Grid container spacing={2} justify="space-around">
@@ -101,32 +126,47 @@ const App = () => {
               />
             </Grid>
             <Grid xs={1} item>
-              <label>Network:</label>
+              <label>Game Symbol:</label>
+            </Grid>
+            <Grid xs={11} item>
+              <input
+                type="text"
+                name="modalInputName"
+                className="form-control"
+                value={gameSymbol}
+                onChange={e => {
+                  console.log('setting gameName = ' + e.target.value);
+                  setGameSymbol(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid xs={1} item>
+              <label>Network Id:</label>
             </Grid>
             <Grid xs={11} item>
                 <input
                   type="text"
                   name="modalInputName"
                   className="form-control"
-                  value={networkName}
+                  value={inputNetworkId}
                   onChange={e => {
                     console.log('setting networkName = ' + e.target.value);
-                    setNetworkName(e.target.value);
+                    setInputNetworkId(e.target.value);
                   }}
                 />
             </Grid>
             <Grid xs={1} item>
-              <label>Address:</label>
+              <label>Collection Address:</label>
             </Grid>
             <Grid xs={11} item>
                 <input
                   type="text"
                   name="modalInputName"
                   className="form-control"
-                  value={contractAddress}
+                  value={collectionAddress}
                   onChange={e => {
-                    console.log('setting contractAddress = ' + e.target.value);
-                    setContractAddress(e.target.value);
+                    console.log('setting collectionAddress = ' + e.target.value);
+                    setCollectionAddress(e.target.value);
                   }}
                 />
             </Grid>
@@ -146,21 +186,22 @@ const App = () => {
                 />
             </Grid>
             <Grid xs={3} item>
-              <label>Floor price:</label>
+              <label>Floor Price: </label>
             </Grid>
-            <Grid xs={1} item>
-                <input
-                  type="text"
-                  name="modalInputName"
-                  className="form-control"
-                  value={sign}
-                  onChange={e => {
+            <Grid xs={2} item>
+                <select name='display_address' onChange={e => {
                     console.log('setting sign = ' + e.target.value);
                     setSign(e.target.value);
-                  }}
-                />
+                  }} >
+                    <option value={sign} selected>Choose here</option>
+                    <option value={true}>True</option>
+                    <option value={false}>false</option>                    
+                </select>
             </Grid>
-            <Grid xs={6} item>
+            <Grid xs={3} item>
+              <label>Is Greater than: </label>
+            </Grid>
+            <Grid xs={2} item>
                 <input
                   type="text"
                   name="modalInputName"
