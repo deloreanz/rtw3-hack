@@ -56,7 +56,7 @@ const App = () => {
 
   useEffect(() => {
     if (!loginProvider || !signer) return;
-    const bettingContractAddress = "0x85E6D61353fe81a40b8EF00773eae7Eb0162b86b"
+    const bettingContractAddress = "0x98f80013A8Aca68D35BA43E445b8d50C3C9169FA"
     const contract = betContract({ contractAddress: bettingContractAddress, networkId, loginProvider: signer });
     setNftBet(contract);
     
@@ -69,10 +69,6 @@ const App = () => {
 
   const handleSubmit = (e) => {
     console.log('formvalues: ', formValues);
-    // if (formValues.contractAddress && 
-    //   formValues.gameName && 
-    //   formValues.networkName && 
-    //   formValues.onDate) {
       var isTrueSet = (sign === 'true');
       const isCreated = nftBet.createGame(formValues.gameName, formValues.gameSymbol, formValues.networkId, formValues.collectionAddress, formValues.onDate, formValues.priceValue, isTrueSet);
       isCreated.then((val) => {
