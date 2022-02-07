@@ -56,10 +56,16 @@ const App = () => {
 
   useEffect(() => {
     if (!loginProvider || !signer) return;
-    const bettingContractAddress = "0xfc66f1872958cb671c9D39B57879DA4181EaC94F"
+    const bettingContractAddress = "0x85E6D61353fe81a40b8EF00773eae7Eb0162b86b"
     const contract = betContract({ contractAddress: bettingContractAddress, networkId, loginProvider: signer });
     setNftBet(contract);
+    
   }, [loginProvider, signer]);
+
+  useEffect(() => {
+    if (!nftBet) return;
+    pollForGames();
+  }, [nftBet]);
 
   const handleSubmit = (e) => {
     console.log('formvalues: ', formValues);
@@ -75,15 +81,20 @@ const App = () => {
           console.log('err: ', err);
         });
       
-      // pollForGames();
   }
 
   const pollForGames = () => {
+    const counter = nftBet.getGameCount();
     const gamesMap = nftBet.gameArray("0");
     gamesMap.then((game) => {
       console.log('game: ', game);
     })
-    console.log('gamesMap: ', gamesMap);
+    counter.then((count) => {
+      console.log('count: ', count);
+    }, (err) => {
+      console.log('err:', err);
+    })
+    
   }
   
 

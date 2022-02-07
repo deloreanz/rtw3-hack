@@ -6,10 +6,6 @@ import Grid from '@mui/material/Grid';
 import { useState } from 'react';
 
 const Header = ({ setIsModalOpen, walletDetails }) => {
-  console.log('walletdetails: ', walletDetails);
-
-  const data = "This is data from Child Component to the Parent Component."
-
   return (
     <header className="header">
       <Grid className="header-container" container spacing={2}>
