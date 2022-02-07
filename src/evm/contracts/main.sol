@@ -119,6 +119,10 @@ contract NftBet is ChainlinkClient {
     return true;
 
   }
+  
+  function getGameCount() public view returns(uint) {
+    return gameCounter;
+  }
 
   function placeBet(uint gameID, uint placedBet, string memory direction) public {
     Bet memory bet;
