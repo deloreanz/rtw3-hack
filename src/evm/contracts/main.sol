@@ -202,25 +202,25 @@ contract NftBet is ChainlinkClient {
     //     "error_message": null,
     //     "error_code": null
     // }
-<<<<<<< HEAD
     // request.add("path", "error");
     // request.add("path", "data.items.0.floor_price_wei_7d");
 
-    string[] memory path = new string[](1);
-    path[0] = "error";
-    // path[1] = "5. Exchange Rate";
+    string[] memory path = new string[](4);
+    path[0] = "data";
+    path[1] = "items";
+    path[2] = "0";
+    path[3] = "floor_price_wei_7d";
     request.addStringArray("path", path);
     
-=======
-    request.add("path", "data.items.0.floor_price_wei_7d");
 
->>>>>>> d4a0b71f4e17c1bc2a0db64e6908221198a76766
     // // Multiply the result by 1000000000000000000 to remove decimals
     // int timesAmount = 10**18;
     // request.addInt("times", timesAmount);
 
     // Sends the request
-    bytes32 _requestId = sendChainlinkRequestTo(oracle, request, fee);
+    bytes32 _requestId = sendChainlinkRequestTo(0xc8D925525CA8759812d0c299B90247917d4d4b7C, request, fee);
+    // bytes32 _requestId = sendChainlinkRequestTo(oracle, request, fee);
+    
 
     emit OracleRequestSent(_requestId);
 
@@ -242,17 +242,13 @@ contract NftBet is ChainlinkClient {
 
     // 5% to current owner of the game NFT (gameID)
     // ERC20 transfer
-<<<<<<< HEAD
     // distribute(_data);
   
-=======
-
 
     uint gameID = 1;
 
     //distribute(_data, gameID);
 
->>>>>>> d4a0b71f4e17c1bc2a0db64e6908221198a76766
 
     // give out proportional rewards to users on the winning side
     // 95% of the pool gets split up
@@ -268,30 +264,6 @@ contract NftBet is ChainlinkClient {
     return sum;
   }
 
-<<<<<<< HEAD
-  // function distribute(uint _data, uint gameID) private {
-  //   uint[] memory players = games[gameID].players;
-  //   uint gamePool = sumPlayerBets(players);
-  //   uint winnerPrice = _data.items[0].floor_price_wei_7d;
-  //   address[] memory winners = [];
-  //   Game memory game = games[gameID];
-  //   for(uint i = 0; i< players.length; i++){
-  //         if(players[i].direction == game.direction){
-  //             winners.push(players[i]);
-  //         }
-  //   }
-  //   uint i = 0;
-  //   for(uint i = 0; i<winners.length; i++) {
-  //       uint256 total = gamePool;
-
-  //       //TO - DO... calculate how much each is owed
-  //       (bool success, ) = winners[i].address.call.value()("");
-  //       require(success, "Transfer failed.");
-  //   }
-    
-  //   // pay nft owner
-  // }
-=======
   function distribute(string memory _data, uint gameID) private {
     // uint gamePool = sumBets(games[gameID].bets);
     // uint winnerPrice = _data.items[0].floor_price_wei_7d;
@@ -312,7 +284,6 @@ contract NftBet is ChainlinkClient {
     // }
     // pay nft owner
   }
->>>>>>> d4a0b71f4e17c1bc2a0db64e6908221198a76766
 
   // @todo probably some view or pure methods as utility
 
