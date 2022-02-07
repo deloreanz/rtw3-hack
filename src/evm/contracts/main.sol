@@ -48,12 +48,13 @@ contract NftBet is ChainlinkClient {
     uint gameID;
     bytes32 results;
     bool direction; // lesser or greater
-    mapping(address => Player[]) players;
+    // mapping(address => Player[]) players;
   }
 
   event GameCreated(address creator /* @todo more fields here */);
   event OracleRequestSent(bytes32 requestId);
   event OracleResultReturned(bytes32 requestId, uint256 data);
+  event OracleResultReturnedBool(bytes32 requestId, bool data);
 
   modifier adminOnly {
     require(msg.sender == adminAddress);
@@ -74,12 +75,16 @@ contract NftBet is ChainlinkClient {
     setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
     // https://docs.polygon.technology/docs/develop/oracles/chainlink/
     // oracle = 0x58BBDbfb6fca3129b91f0DBE372098123B38B5e9; // orig
+    // jobId = "da20aae0e4c843f6949e5cb3f7cfe8c4"; // HTTP GET, returns uint256, orig
+
+    // https://market.link/jobs/5bfcaea1-82f5-428a-8695-774a3b9afbde
     oracle = 0xc8D925525CA8759812d0c299B90247917d4d4b7C;
     // jobId = "a82495a8fd5b4cb492b17dc0cc31a4fe"; // HTTP GET, returns bytes32
-    // jobId = "da20aae0e4c843f6949e5cb3f7cfe8c4"; // HTTP GET, returns uint256, orig
-    jobId = "bbf0badad29d49dc887504bacfbb905b";
+    jobId = "bbf0badad29d49dc887504bacfbb905b"; // HTTP GET, returns uint256
+    // jobId = "99b1b806a8f84b14a254230ccf094747"; // HTTP GET, returns bool
     // @note fee varies by network and job
     fee = 10 ** 16; // 0.01 LINK
+    // fee = 10 ** 17; // 0.1 LINK
   }
 
   function createGame
@@ -90,7 +95,7 @@ contract NftBet is ChainlinkClient {
       address collectionAddress,
       string memory date,
       string memory floor_price,
-      bool memory direction
+      bool direction
   )
     public returns (bool) {
 
@@ -148,8 +153,9 @@ contract NftBet is ChainlinkClient {
       "/?quote-currency=USD&format=JSON&from=", date, "&to=", date,
       "&key=", apiKey
     ));
+    // string memory url = "https://api.covalenthq.com/v1/1/nft_market/collection/0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D/?quote-currency=USD&format=JSON&from=2022-02-05&to=2022-02-05&key=ckey_6168a8cd7f7842628f034d5e42b";
 
-    Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+    Chainlink.Request memory request = buildChainlinkRequest(stringToBytes32("bbf0badad29d49dc887504bacfbb905b"), address(this), this.fulfill.selector);
         
     // Set the URL to perform the GET request on
     request.add("get", url);
@@ -182,7 +188,13 @@ contract NftBet is ChainlinkClient {
     //     "error_message": null,
     //     "error_code": null
     // }
-    request.add("path", "data.items.0.floor_price_wei_7d");
+    // request.add("path", "error");
+    // request.add("path", "data.items.0.floor_price_wei_7d");
+
+    string[] memory path = new string[](1);
+    path[0] = "error";
+    // path[1] = "5. Exchange Rate";
+    request.addStringArray("path", path);
     
     // // Multiply the result by 1000000000000000000 to remove decimals
     // int timesAmount = 10**18;
@@ -196,10 +208,11 @@ contract NftBet is ChainlinkClient {
     return _requestId;
   }
 
-  function fulfill(bytes32 _requestId, uint256 _data)
+  // function fulfill(bytes32 _requestId, uint256 _data)
+  function fulfill(bytes32 _requestId, bool _data)
     public recordChainlinkFulfillment(_requestId)
   {
-    emit OracleResultReturned(_requestId, _data);
+    emit OracleResultReturnedBool(_requestId, _data);
     // TO-DO: distribute funds
 
     // Check for game is over... if game date is today
@@ -210,7 +223,7 @@ contract NftBet is ChainlinkClient {
 
     // 5% to current owner of the game NFT (gameID)
     // ERC20 transfer
-    distribute(_data);
+    // distribute(_data);
   
 
     // give out proportional rewards to users on the winning side
@@ -226,28 +239,28 @@ contract NftBet is ChainlinkClient {
     }
   }
 
-  function distribute(uint _data, uint gameID) private {
-    uint[] memory players = games[gameID].players;
-    uint gamePool = sumPlayerBets(players);
-    uint winnerPrice = _data.items[0].floor_price_wei_7d;
-    address[] memory winners = [];
-    Game memory game = games[gameID];
-    for(uint i = 0; i< players.length; i++){
-          if(players[i].direction == game.direction){
-              winners.push(players[i]);
-          }
-    }
-    i = 0;
-    for(uint i = 0; i<winners.length; i++) {
-        uint256 total = gamePool;
+  // function distribute(uint _data, uint gameID) private {
+  //   uint[] memory players = games[gameID].players;
+  //   uint gamePool = sumPlayerBets(players);
+  //   uint winnerPrice = _data.items[0].floor_price_wei_7d;
+  //   address[] memory winners = [];
+  //   Game memory game = games[gameID];
+  //   for(uint i = 0; i< players.length; i++){
+  //         if(players[i].direction == game.direction){
+  //             winners.push(players[i]);
+  //         }
+  //   }
+  //   uint i = 0;
+  //   for(uint i = 0; i<winners.length; i++) {
+  //       uint256 total = gamePool;
 
-        //TO - DO... calculate how much each is owed
-        (bool success, ) = winners[i].address.call.value()("");
-        require(success, "Transfer failed.");
-    }
-    }
-    // pay nft owner
-  }
+  //       //TO - DO... calculate how much each is owed
+  //       (bool success, ) = winners[i].address.call.value()("");
+  //       require(success, "Transfer failed.");
+  //   }
+    
+  //   // pay nft owner
+  // }
 
   // @todo probably some view or pure methods as utility
 
@@ -284,5 +297,15 @@ contract NftBet is ChainlinkClient {
   //   sendChainlinkRequestTo(_oracle, req, oraclePayment);
   // }
 
+  function stringToBytes32(string memory source) private pure returns (bytes32 result) {
+    bytes memory tempEmptyStringTest = bytes(source);
+    if (tempEmptyStringTest.length == 0) {
+      return 0x0;
+    }
+
+    assembly { // solhint-disable-line no-inline-assembly
+      result := mload(add(source, 32))
+    }
+  }
 
 }
